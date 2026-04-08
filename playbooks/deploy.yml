@@ -28,12 +28,10 @@
           ansible.builtin.meta: flush_handlers
 
         - name: Verificar que nginx responde na porta 80 após deploy
-          ansible.builtin.uri:
-            url: "http://{{ inventory_hostname }}"
-            status_code: 200
-          delegate_to: localhost
-          retries: 3
-          delay: 5
+          ansible.builtin.wait_for:
+            host: "{{ inventory_hostname }}"
+            port: 80
+            timeout: 30
 
       rescue:
         - name: Rollback — restaurar index.html anterior

@@ -8,7 +8,7 @@
       ansible.builtin.ping:
 
     - name: Verificar que nginx está respondendo na porta 80
-      ansible.builtin.uri:
-        url: "http://{{ inventory_hostname }}"
-        status_code: 200
-      delegate_to: localhost
+      ansible.builtin.wait_for:
+        host: "{{ inventory_hostname }}"
+        port: 80
+        timeout: 10

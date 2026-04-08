@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ansible AAP — Selecao Deploy</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f1117; color: #e2e8f0; line-height: 1.7; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; }
+  h1 { font-size: 2rem; color: #63b3ed; margin-bottom: 8px; }
+  h2 { font-size: 1.3rem; color: #90cdf4; margin: 40px 0 16px; border-bottom: 1px solid #2d3748; padding-bottom: 8px; }
+  h3 { font-size: 1rem; color: #68d391; margin: 24px 0 10px; }
+  p { color: #a0aec0; margin-bottom: 12px; }
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-right: 6px; }
+  .badge-green { background: #1c4532; color: #68d391; }
+  .badge-blue { background: #1a365d; color: #63b3ed; }
+  .badge-yellow { background: #744210; color: #f6e05e; }
+  .badge-red { background: #742a2a; color: #fc8181; }
+  pre { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 8px; padding: 20px; overflow-x: auto; font-size: 0.82rem; line-height: 1.6; margin: 12px 0; }
+  code { font-family: 'Courier New', monospace; }
+  .kw { color: #f6ad55; }
+  .str { color: #68d391; }
+  .cm { color: #4a5568; font-style: italic; }
+  .key { color: #63b3ed; }
+  .val { color: #fc8181; }
+  .flow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 20px 0; }
+  .node { background: #1a365d; border: 1px solid #2b6cb0; border-radius: 8px; padding: 12px 20px; text-align: center; min-width: 160px; }
+  .node .title { font-weight: 700; color: #90cdf4; font-size: 0.9rem; }
+  .node .sub { font-size: 0.75rem; color: #4a5568; margin-top: 4px; }
+  .arrow { color: #68d391; font-size: 1.4rem; font-weight: bold; }
+  .arrow-fail { color: #fc8181; font-size: 0.8rem; text-align: center; }
+  .table-wrap { overflow-x: auto; margin: 12px 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  th { background: #1a365d; color: #90cdf4; padding: 10px 14px; text-align: left; }
+  td { padding: 9px 14px; border-bottom: 1px solid #2d3748; color: #a0aec0; }
+  td code { background: #1a1f2e; padding: 2px 6px; border-radius: 4px; color: #68d391; font-size: 0.82rem; }
+  .step { display: flex; gap: 16px; margin-bottom: 20px; }
+  .step-num { background: #2b6cb0; color: #fff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.9rem; }
+  .step-body { flex: 1; }
+  .step-body strong { color: #e2e8f0; }
+  .block-section { background: #1a1f2e; border-left: 3px solid #63b3ed; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 12px 0; }
+  .rescue-section { background: #1a1f2e; border-left: 3px solid #fc8181; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 12px 0; }
+  .always-section { background: #1a1f2e; border-left: 3px solid #f6e05e; border-radius: 0 8px 8px 0; padding: 16px 20px; margin: 12px 0; }
+  .tag { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+  .tag-blue { color: #63b3ed; }
+  .tag-red { color: #fc8181; }
+  .tag-yellow { color: #f6e05e; }
+  .header-meta { color: #4a5568; font-size: 0.85rem; margin-bottom: 32px; }
+  a { color: #63b3ed; }
+  .file-tree { background: #1a1f2e; border: 1px solid #2d3748; border-radius: 8px; padding: 20px; font-family: monospace; font-size: 0.85rem; line-height: 2; }
+  .file-tree .dir { color: #63b3ed; }
+  .file-tree .file { color: #68d391; }
+  .file-tree .comment { color: #4a5568; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Ansible AAP — Selecao Deploy</h1>
+  <p class="header-meta">
+    <span class="badge badge-green">RHEL 8</span>
+    <span class="badge badge-blue">Ansible AAP</span>
+    <span class="badge badge-yellow">Rolling Update</span>
+    <span class="badge badge-red">Zero Downtime</span>
+    &nbsp;Repositório: <a href="https://github.com/gustavo-sysadmin/ansible-aap-selecao" target="_blank">github.com/gustavo-sysadmin/ansible-aap-selecao</a>
+  </p>
+
+  <!-- ESTRUTURA -->
+  <h2>Estrutura do Repositório</h2>
+  <div class="file-tree">
+    <span class="dir">roles/</span><br>
+    &nbsp;&nbsp;<span class="dir">webserver/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">tasks/main.yml</span> &nbsp;<span class="comment"># instala e configura nginx</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">handlers/main.yml</span> &nbsp;<span class="comment"># restart nginx</span><br>
+    &nbsp;&nbsp;<span class="dir">deploy/</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">tasks/main.yml</span> &nbsp;<span class="comment"># backup + copia index.html dinâmico</span><br>
+    &nbsp;&nbsp;&nbsp;&nbsp;<span class="file">handlers/main.yml</span> &nbsp;<span class="comment"># reload nginx</span><br>
+    <span class="dir">playbooks/</span><br>
+    &nbsp;&nbsp;<span class="file">precheck.yml</span> &nbsp;<span class="comment"># verifica SSH + nginx porta 80</span><br>
+    &nbsp;&nbsp;<span class="file">security-update.yml</span> &nbsp;<span class="comment"># yum update --security</span><br>
+    &nbsp;&nbsp;<span class="file">deploy.yml</span> &nbsp;<span class="comment"># rolling update serial:1 com block/rescue/always</span>
+  </div>
+
+  <!-- INFRAESTRUTURA -->
+  <h2>Infraestrutura</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Host</th><th>IP</th><th>Porta SSH</th><th>Porta HTTP</th></tr>
+      <tr><td>selecao-web-01</td><td>54.91.15.202</td><td>22</td><td>80</td></tr>
+      <tr><td>selecao-web-02</td><td>54.160.37.223</td><td>22</td><td>80</td></tr>
+      <tr><td>selecao-web-03</td><td>3.92.142.39</td><td>22</td><td>80</td></tr>
+    </table>
+  </div>
+
+  <!-- AAP -->
+  <h2>Recursos Criados no AAP</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Tipo</th><th>Nome</th><th>ID</th><th>Detalhe</th></tr>
+      <tr><td>Project</td><td>Selecao - Ansible AAP</td><td>29</td><td>GitHub / branch master</td></tr>
+      <tr><td>Job Template</td><td>Selecao - Precheck</td><td>30</td><td>playbooks/precheck.yml</td></tr>
+      <tr><td>Job Template</td><td>Selecao - Security Update</td><td>31</td><td>playbooks/security-update.yml</td></tr>
+      <tr><td>Job Template</td><td>Selecao - Deploy</td><td>32</td><td>playbooks/deploy.yml</td></tr>
+      <tr><td>Workflow Template</td><td>Selecao - Workflow Deploy</td><td>33</td><td>Survey habilitado</td></tr>
+    </table>
+  </div>
+
+  <!-- FLUXO -->
+  <h2>Fluxo do Workflow</h2>
+  <div class="flow">
+    <div class="node"><div class="title">Selecao - Precheck</div><div class="sub">ping + uri porta 80</div></div>
+    <div>
+      <div class="arrow">→</div>
+      <div class="arrow-fail" style="color:#4a5568">sucesso</div>
+    </div>
+    <div class="node"><div class="title">Selecao - Security Update</div><div class="sub">yum update --security</div></div>
+    <div>
+      <div class="arrow">→</div>
+      <div class="arrow-fail" style="color:#4a5568">sucesso</div>
+    </div>
+    <div class="node"><div class="title">Selecao - Deploy</div><div class="sub">rolling serial:1</div></div>
+  </div>
+  <p style="color:#fc8181; font-size:0.85rem;">↳ Qualquer falha interrompe o fluxo e para o rolling update no host com problema.</p>
+
+  <!-- SURVEY -->
+  <h2>Survey do Workflow</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Pergunta</th><th>Variável</th><th>Tipo</th><th>Opções</th></tr>
+      <tr><td>Versão da aplicação</td><td><code>app_version</code></td><td>Texto livre</td><td>ex: 2.1.0</td></tr>
+      <tr><td>Ambiente</td><td><code>deploy_env</code></td><td>Escolha única</td><td>dev / homolog / prod</td></tr>
+    </table>
+  </div>
+
+  <!-- COMO EXECUTAR -->
+  <h2>Como Executar o Workflow</h2>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-body">
+      <strong>Acesse o AAP</strong>
+      <p>URL: <a href="https://sandbox-aap-samuraishield-dev.apps.rm2.thpm.p1.openshiftapps.com/overview" target="_blank">sandbox-aap-samuraishield-dev.apps.rm2.thpm.p1.openshiftapps.com</a><br>
+      Usuário: <code>user1</code> &nbsp;|&nbsp; Organização: <code>Oraex - teste1</code></p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-body">
+      <strong>Navegue até o Workflow Template</strong>
+      <p>Menu lateral → <strong>Automation</strong> → <strong>Templates</strong> → <strong>Selecao - Workflow Deploy</strong></p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-body">
+      <strong>Clique em Launch (▶)</strong>
+      <p>Preencha o Survey:</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Campo</th><th>Valor para validação</th></tr>
+          <tr><td>Versão da aplicação</td><td><code>2.1.0</code></td></tr>
+          <tr><td>Ambiente</td><td><code>prod</code></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-body">
+      <strong>Acompanhe a execução</strong>
+      <p>O workflow executa os 3 nós em sequência. Cada Job Template mostra output em tempo real. O deploy processa <strong>um host por vez</strong> (serial: 1).</p>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-body">
+      <strong>Validar resultado</strong>
+      <p>Após sucesso, acesse cada host no browser para confirmar o conteúdo dinâmico:</p>
+      <pre><code>http://54.91.15.202
+http://54.160.37.223
+http://3.92.142.39</code></pre>
+      <p>Verificar log de auditoria em cada host:</p>
+      <pre><code>cat /var/log/deploy_audit.log</code></pre>
+    </div>
+  </div>
+
+  <!-- PLAYBOOKS -->
+  <h2>Playbooks</h2>
+
+  <h3>playbooks/precheck.yml</h3>
+  <p>Verifica conectividade SSH e que nginx responde na porta 80 nos 3 hosts.</p>
+  <pre><code><span class="cm">---</span>
+<span class="kw">- name:</span> <span class="str">Precheck de conectividade</span>
+  <span class="kw">hosts:</span> <span class="val">all</span>
+  <span class="kw">gather_facts:</span> <span class="val">false</span>
+
+  <span class="kw">tasks:</span>
+    <span class="kw">- name:</span> <span class="str">Verificar conectividade SSH (ping Ansible)</span>
+      <span class="kw">ansible.builtin.ping:</span>
+
+    <span class="kw">- name:</span> <span class="str">Verificar que nginx está respondendo na porta 80</span>
+      <span class="kw">ansible.builtin.uri:</span>
+        <span class="kw">url:</span> <span class="str">"http://{{ inventory_hostname }}"</span>
+        <span class="kw">status_code:</span> <span class="val">200</span>
+      <span class="kw">delegate_to:</span> <span class="val">localhost</span></code></pre>
+
+  <h3>playbooks/security-update.yml</h3>
+  <p>Aplica patches de segurança via <code>yum update --security</code> em todos os hosts.</p>
+  <pre><code><span class="cm">---</span>
+<span class="kw">- name:</span> <span class="str">Aplicar patches de segurança</span>
+  <span class="kw">hosts:</span> <span class="val">all</span>
+  <span class="kw">gather_facts:</span> <span class="val">false</span>
+  <span class="kw">become:</span> <span class="val">true</span>
+
+  <span class="kw">tasks:</span>
+    <span class="kw">- name:</span> <span class="str">Aplicar atualizações de segurança via yum</span>
+      <span class="kw">ansible.builtin.yum:</span>
+        <span class="kw">name:</span> <span class="str">'*'</span>
+        <span class="kw">security:</span> <span class="val">true</span>
+        <span class="kw">state:</span> <span class="val">latest</span>
+      <span class="kw">register:</span> <span class="val">yum_result</span>
+
+    <span class="kw">- name:</span> <span class="str">Exibir resumo das atualizações</span>
+      <span class="kw">ansible.builtin.debug:</span>
+        <span class="kw">msg:</span> <span class="str">"Pacotes atualizados: {{ yum_result.changes | default('nenhuma mudança') }}"</span></code></pre>
+
+  <h3>playbooks/deploy.yml</h3>
+  <p>Rolling update <code>serial: 1</code> com block/rescue/always. Instala nginx via role, faz deploy, valida porta 80, e em caso de falha reverte automaticamente.</p>
+
+  <div class="block-section">
+    <div class="tag tag-blue">block — caminho feliz</div>
+    <p style="font-size:0.85rem; color:#a0aec0;">Executa a role deploy → flush handlers → health check na porta 80 (3 tentativas)</p>
+  </div>
+  <div class="rescue-section">
+    <div class="tag tag-red">rescue — rollback automático</div>
+    <p style="font-size:0.85rem; color:#a0aec0;">Restaura <code>index.html.bak</code> → reinicia nginx → loga FAILED_ROLLBACK → chama <code>fail</code> para interromper o rolling</p>
+  </div>
+  <div class="always-section">
+    <div class="tag tag-yellow">always — auditoria</div>
+    <p style="font-size:0.85rem; color:#a0aec0;">Registra em <code>/var/log/deploy_audit.log</code> com timestamp, host, env, versão e status</p>
+  </div>
+
+  <pre><code><span class="cm">---</span>
+<span class="kw">- name:</span> <span class="str">Rolling deploy da aplicação web</span>
+  <span class="kw">hosts:</span> <span class="val">all</span>
+  <span class="kw">serial:</span> <span class="val">1</span>
+  <span class="kw">become:</span> <span class="val">true</span>
+  <span class="kw">gather_facts:</span> <span class="val">true</span>
+
+  <span class="kw">vars:</span>
+    <span class="kw">app_version:</span> <span class="str">"{{ app_version | default('1.0.0') }}"</span>
+    <span class="kw">deploy_env:</span> <span class="str">"{{ deploy_env | default('dev') }}"</span>
+    <span class="kw">audit_log:</span> <span class="val">/var/log/deploy_audit.log</span>
+
+  <span class="kw">pre_tasks:</span>
+    <span class="kw">- name:</span> <span class="str">Garantir que nginx está instalado e configurado</span>
+      <span class="kw">ansible.builtin.include_role:</span>
+        <span class="kw">name:</span> <span class="val">webserver</span>
+
+  <span class="kw">tasks:</span>
+    <span class="kw">- name:</span> <span class="str">Deploy com rollback automático em caso de falha</span>
+      <span class="kw">block:</span>
+        <span class="kw">- name:</span> <span class="str">Executar deploy do index.html</span>
+          <span class="kw">ansible.builtin.include_role:</span>
+            <span class="kw">name:</span> <span class="val">deploy</span>
+
+        <span class="kw">- name:</span> <span class="str">Forçar flush dos handlers (reload nginx)</span>
+          <span class="kw">ansible.builtin.meta:</span> <span class="val">flush_handlers</span>
+
+        <span class="kw">- name:</span> <span class="str">Verificar que nginx responde na porta 80 após deploy</span>
+          <span class="kw">ansible.builtin.uri:</span>
+            <span class="kw">url:</span> <span class="str">"http://{{ inventory_hostname }}"</span>
+            <span class="kw">status_code:</span> <span class="val">200</span>
+          <span class="kw">delegate_to:</span> <span class="val">localhost</span>
+          <span class="kw">retries:</span> <span class="val">3</span>
+          <span class="kw">delay:</span> <span class="val">5</span>
+
+      <span class="kw">rescue:</span>
+        <span class="kw">- name:</span> <span class="str">Rollback — restaurar index.html anterior</span>
+          <span class="kw">ansible.builtin.copy:</span>
+            <span class="kw">src:</span> <span class="val">/usr/share/nginx/html/index.html.bak</span>
+            <span class="kw">dest:</span> <span class="val">/usr/share/nginx/html/index.html</span>
+            <span class="kw">remote_src:</span> <span class="val">true</span>
+
+        <span class="kw">- name:</span> <span class="str">Registrar falha no log de auditoria</span>
+          <span class="kw">ansible.builtin.lineinfile:</span>
+            <span class="kw">path:</span> <span class="str">"{{ audit_log }}"</span>
+            <span class="kw">line:</span> <span class="str">"{{ ansible_date_time.iso8601 }} | HOST={{ inventory_hostname }} | ENV={{ deploy_env }} | VERSION={{ app_version }} | STATUS=FAILED_ROLLBACK"</span>
+            <span class="kw">create:</span> <span class="val">true</span>
+
+        <span class="kw">- name:</span> <span class="str">Falhar o play para interromper o rolling update</span>
+          <span class="kw">ansible.builtin.fail:</span>
+            <span class="kw">msg:</span> <span class="str">"Deploy falhou em {{ inventory_hostname }}. Rollback aplicado."</span>
+
+      <span class="kw">always:</span>
+        <span class="kw">- name:</span> <span class="str">Registrar resultado no log de auditoria</span>
+          <span class="kw">ansible.builtin.lineinfile:</span>
+            <span class="kw">path:</span> <span class="str">"{{ audit_log }}"</span>
+            <span class="kw">line:</span> <span class="str">"{{ ansible_date_time.iso8601 }} | HOST={{ inventory_hostname }} | ENV={{ deploy_env }} | VERSION={{ app_version }} | STATUS=SUCCESS"</span>
+            <span class="kw">create:</span> <span class="val">true</span></code></pre>
+
+  <!-- ROLES -->
+  <h2>Roles</h2>
+
+  <h3>roles/webserver/tasks/main.yml</h3>
+  <pre><code><span class="cm">---</span>
+<span class="kw">- name:</span> <span class="str">Instalar nginx</span>
+  <span class="kw">ansible.builtin.yum:</span>
+    <span class="kw">name:</span> <span class="val">nginx</span>
+    <span class="kw">state:</span> <span class="val">present</span>
+
+<span class="kw">- name:</span> <span class="str">Garantir que nginx está habilitado e rodando</span>
+  <span class="kw">ansible.builtin.service:</span>
+    <span class="kw">name:</span> <span class="val">nginx</span>
+    <span class="kw">state:</span> <span class="val">started</span>
+    <span class="kw">enabled:</span> <span class="val">true</span>
+
+<span class="kw">- name:</span> <span class="str">Abrir porta 80 no firewall</span>
+  <span class="kw">ansible.posix.firewalld:</span>
+    <span class="kw">service:</span> <span class="val">http</span>
+    <span class="kw">permanent:</span> <span class="val">true</span>
+    <span class="kw">state:</span> <span class="val">enabled</span>
+    <span class="kw">immediate:</span> <span class="val">true</span>
+  <span class="kw">ignore_errors:</span> <span class="val">true</span></code></pre>
+
+  <h3>roles/deploy/tasks/main.yml</h3>
+  <pre><code><span class="cm">---</span>
+<span class="kw">- name:</span> <span class="str">Fazer backup do index.html atual</span>
+  <span class="kw">ansible.builtin.copy:</span>
+    <span class="kw">src:</span> <span class="val">/usr/share/nginx/html/index.html</span>
+    <span class="kw">dest:</span> <span class="val">/usr/share/nginx/html/index.html.bak</span>
+    <span class="kw">remote_src:</span> <span class="val">true</span>
+  <span class="kw">ignore_errors:</span> <span class="val">true</span>
+
+<span class="kw">- name:</span> <span class="str">Fazer deploy do index.html</span>
+  <span class="kw">ansible.builtin.copy:</span>
+    <span class="kw">content:</span> <span class="str">|
+      &lt;!DOCTYPE html&gt;
+      &lt;html&gt;
+        &lt;head&gt;&lt;title&gt;App - {{ deploy_env | upper }}&lt;/title&gt;&lt;/head&gt;
+        &lt;body&gt;
+          &lt;h1&gt;Ambiente: {{ deploy_env }}&lt;/h1&gt;
+          &lt;p&gt;Versão: {{ app_version }}&lt;/p&gt;
+          &lt;p&gt;Host: {{ inventory_hostname }}&lt;/p&gt;
+          &lt;p&gt;Deploy: {{ ansible_date_time.iso8601 }}&lt;/p&gt;
+        &lt;/body&gt;
+      &lt;/html&gt;</span>
+    <span class="kw">dest:</span> <span class="val">/usr/share/nginx/html/index.html</span>
+    <span class="kw">mode:</span> <span class="str">'0644'</span>
+  <span class="kw">notify:</span> <span class="val">Reload nginx</span></code></pre>
+
+  <!-- COMPORTAMENTO -->
+  <h2>Comportamento Esperado</h2>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Requisito</th><th>Como foi implementado</th></tr>
+      <tr><td>Idempotente</td><td>yum <code>state: present</code>, service <code>state: started</code>, copy com conteúdo fixo</td></tr>
+      <tr><td>Rolling update</td><td><code>serial: 1</code> no deploy.yml — processa um host por vez</td></tr>
+      <tr><td>Para na falha</td><td><code>ansible.builtin.fail</code> no rescue interrompe o play inteiro</td></tr>
+      <tr><td>Health check</td><td><code>ansible.builtin.uri</code> na porta 80 com 3 retries após cada deploy</td></tr>
+      <tr><td>Rollback automático</td><td>rescue restaura <code>index.html.bak</code> e reinicia nginx</td></tr>
+      <tr><td>Auditoria</td><td>always grava em <code>/var/log/deploy_audit.log</code> com timestamp e status</td></tr>
+      <tr><td>Patches de segurança</td><td>security-update.yml roda antes do deploy no workflow</td></tr>
+      <tr><td>Conteúdo dinâmico</td><td>index.html usa <code>deploy_env</code> e <code>app_version</code> do Survey</td></tr>
+    </table>
+  </div>
+
+  <p style="margin-top:40px; font-size:0.8rem; color:#4a5568; text-align:center;">
+    Gerado em 08/04/2026 &nbsp;|&nbsp; gustavo-sysadmin &nbsp;|&nbsp; Oraex - teste1
+  </p>
+
+</div>
+</body>
+</html>

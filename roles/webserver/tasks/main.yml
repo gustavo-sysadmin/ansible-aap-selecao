@@ -10,10 +10,11 @@
     state: started
     enabled: true
 
-- name: Abrir porta 80 no firewall
+- name: Abrir porta 80 no firewall (se firewalld disponível)
   ansible.posix.firewalld:
     service: http
     permanent: true
     state: enabled
     immediate: true
   ignore_errors: true
+  when: ansible_facts.services is defined and 'firewalld.service' in ansible_facts.services
