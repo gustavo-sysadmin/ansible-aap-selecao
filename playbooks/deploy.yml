@@ -6,9 +6,13 @@
   gather_facts: true
 
   vars:
-    app_version: "{{ app_version | default('1.0.0') }}"
-    deploy_env: "{{ deploy_env | default('dev') }}"
     audit_log: /var/log/deploy_audit.log
+
+  pre_tasks:
+    - name: Definir variáveis com defaults
+      ansible.builtin.set_fact:
+        app_version: "{{ app_version | default('1.0.0') }}"
+        deploy_env: "{{ deploy_env | default('dev') }}"
 
   roles:
     - webserver
