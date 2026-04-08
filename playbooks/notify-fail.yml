@@ -1,0 +1,8 @@
+---
+- name: Notificacao de falha no workflow
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Registrar falha do workflow
+      ansible.builtin.debug:
+        msg: "FALHA DETECTADA no workflow - ENV={{ deploy_env | default('N/A') }} | VERSION={{ app_version | default('N/A') }}"
