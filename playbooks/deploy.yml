@@ -1,0 +1,65 @@
+---
+- name: Rolling deploy da aplicação web
+  hosts: all
+  serial: 1
+  become: true
+  gather_facts: true
+
+  vars:
+    app_version: "{{ app_version | default('1.0.0') }}"
+    deploy_env: "{{ deploy_env | default('dev') }}"
+    audit_log: /var/log/deploy_audit.log
+
+  pre_tasks:
+    - name: Garantir que nginx está instalado e configurado
+      ansible.builtin.include_role:
+        name: webserver
+
+  tasks:
+    - name: Deploy com rollback automático em caso de falha
+      block:
+        - name: Executar deploy do index.html
+          ansible.builtin.include_role:
+            name: deploy
+
+        - name: Forçar flush dos handlers (reload nginx)
+          ansible.builtin.meta: flush_handlers
+
+        - name: Verificar que nginx responde na porta 80 após deploy
+          ansible.builtin.uri:
+            url: "http://{{ inventory_hostname }}"
+            status_code: 200
+          delegate_to: localhost
+          retries: 3
+          delay: 5
+
+      rescue:
+        - name: Rollback — restaurar index.html anterior
+          ansible.builtin.copy:
+            src: /usr/share/nginx/html/index.html.bak
+            dest: /usr/share/nginx/html/index.html
+            remote_src: true
+
+        - name: Reiniciar nginx após rollback
+          ansible.builtin.service:
+            name: nginx
+            state: restarted
+
+        - name: Registrar falha no log de auditoria
+          ansible.builtin.lineinfile:
+            path: "{{ audit_log }}"
+            line: "{{ ansible_date_time.iso8601 }} | HOST={{ inventory_hostname }} | ENV={{ deploy_env }} | VERSION={{ app_version }} | STATUS=FAILED_ROLLBACK"
+            create: true
+            mode: '0640'
+
+        - name: Falhar o play para interromper o rolling update
+          ansible.builtin.fail:
+            msg: "Deploy falhou em {{ inventory_hostname }}. Rollback aplicado. Rolling update interrompido."
+
+      always:
+        - name: Registrar resultado no log de auditoria
+          ansible.builtin.lineinfile:
+            path: "{{ audit_log }}"
+            line: "{{ ansible_date_time.iso8601 }} | HOST={{ inventory_hostname }} | ENV={{ deploy_env }} | VERSION={{ app_version }} | STATUS=SUCCESS"
+            create: true
+            mode: '0640'

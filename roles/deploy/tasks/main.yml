@@ -1,0 +1,26 @@
+---
+- name: Fazer backup do index.html atual
+  ansible.builtin.copy:
+    src: /usr/share/nginx/html/index.html
+    dest: /usr/share/nginx/html/index.html.bak
+    remote_src: true
+  ignore_errors: true
+
+- name: Fazer deploy do index.html
+  ansible.builtin.copy:
+    content: |
+      <!DOCTYPE html>
+      <html>
+        <head><title>App - {{ deploy_env | upper }}</title></head>
+        <body>
+          <h1>Ambiente: {{ deploy_env }}</h1>
+          <p>Versão: {{ app_version }}</p>
+          <p>Host: {{ inventory_hostname }}</p>
+          <p>Deploy: {{ ansible_date_time.iso8601 }}</p>
+        </body>
+      </html>
+    dest: /usr/share/nginx/html/index.html
+    owner: root
+    group: root
+    mode: '0644'
+  notify: Reload nginx

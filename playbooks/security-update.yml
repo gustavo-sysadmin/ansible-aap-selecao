@@ -1,0 +1,17 @@
+---
+- name: Aplicar patches de segurança
+  hosts: all
+  gather_facts: false
+  become: true
+
+  tasks:
+    - name: Aplicar atualizações de segurança via yum
+      ansible.builtin.yum:
+        name: '*'
+        security: true
+        state: latest
+      register: yum_result
+
+    - name: Exibir resumo das atualizações
+      ansible.builtin.debug:
+        msg: "Pacotes atualizados: {{ yum_result.changes | default('nenhuma mudança') }}"

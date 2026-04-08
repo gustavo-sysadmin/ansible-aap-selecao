@@ -1,0 +1,19 @@
+---
+- name: Instalar nginx
+  ansible.builtin.yum:
+    name: nginx
+    state: present
+
+- name: Garantir que nginx está habilitado e rodando
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+
+- name: Abrir porta 80 no firewall
+  ansible.posix.firewalld:
+    service: http
+    permanent: true
+    state: enabled
+    immediate: true
+  ignore_errors: true

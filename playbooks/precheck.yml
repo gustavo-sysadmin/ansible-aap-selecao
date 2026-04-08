@@ -1,0 +1,14 @@
+---
+- name: Precheck de conectividade
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Verificar conectividade SSH (ping Ansible)
+      ansible.builtin.ping:
+
+    - name: Verificar que nginx está respondendo na porta 80
+      ansible.builtin.uri:
+        url: "http://{{ inventory_hostname }}"
+        status_code: 200
+      delegate_to: localhost
