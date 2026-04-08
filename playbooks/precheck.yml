@@ -9,6 +9,6 @@
 
     - name: Verificar que nginx está respondendo na porta 80
       ansible.builtin.wait_for:
-        host: "{{ inventory_hostname }}"
+        host: 127.0.0.1
         port: 80
         timeout: 10
