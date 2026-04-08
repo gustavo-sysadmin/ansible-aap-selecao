@@ -10,10 +10,8 @@
     deploy_env: "{{ deploy_env | default('dev') }}"
     audit_log: /var/log/deploy_audit.log
 
-  pre_tasks:
-    - name: Garantir que nginx está instalado e configurado
-      ansible.builtin.include_role:
-        name: webserver
+  roles:
+    - webserver
 
   tasks:
     - name: Deploy com rollback automático em caso de falha
